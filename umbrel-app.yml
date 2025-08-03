@@ -1,0 +1,21 @@
+manifestVersion: 1
+id: qr-short
+name: QR & Short
+tagline: Create QR codes and short URLs
+description: >-
+  A modern QR code generator and URL shortener app. Create custom QR codes with logos,
+  colors, and shapes. Shorten URLs and track clicks. All with a sleek, modern interface
+  that respects your design preferences with dark and light modes.
+icon: https://github.com/getumbrel/umbrel-apps/raw/master/qr-short/images/icon.png
+category: Utilities
+developer: Umbrel
+website: https://getumbrel.com
+submitter: panie18
+repo: https://github.com/getumbrel/umbrel-apps
+support: https://github.com/getumbrel/umbrel-apps/issues
+port: 3125
+gallery:
+  - https://github.com/getumbrel/umbrel-apps/raw/master/qr-short/images/screenshot.png
+path: ""
+defaultUsername: ""
+defaultPassword: ""
