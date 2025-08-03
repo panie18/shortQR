@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR & Short | umbrelOS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-6">
+        <header class="flex justify-between items-center mb-8">
+            <div class="flex items-center space-x-3">
+                <svg class="w-8 h-8 text-umbrel-blue" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1 class="text-2xl font-semibold">QR & Short</h1>
+            </div>
+            <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                <!-- Sun icon -->
+                <svg id="sun-icon" class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <!-- Moon icon -->
+                <svg id="moon-icon" class="w-6 h-6 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+            </button>
+        </header>
+
+        <div class="card overflow-hidden mb-6">
+            <div class="flex border-b border-gray-200 dark:border-gray-700">
+                <button id="qr-tab-btn" class="flex-1 py-3 px-4 font-medium border-b-2 border-umbrel-blue">QR Generator</button>
+                <button id="url-tab-btn" class="flex-1 py-3 px-4 font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent">URL Shortener</button>
+            </div>
+
+            <div id="qr-tab" class="p-6">
+                <div class="mb-6">
+                    <label for="qr-content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL or Text</label>
+                    <input type="text" id="qr-content" class="input" placeholder="Enter URL or text to generate QR code">
+                </div>
+
+                <div class="bg-gray-100 dark:bg-gray-800 rounded-xl p-5 mb-6">
+                    <h3 class="font-medium mb-4">Customize</h3>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label for="qr-size" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Size</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="qr-size" min="100" max="400" value="250" class="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                                <span id="size-value" class="text-sm text-gray-600 dark:text-gray-400 w-16">250px</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Shape</label>
+                            <div class="flex space-x-4">
+                                <button class="shape-btn active w-12 h-12 border-2 border-umbrel-blue flex items-center justify-center rounded-lg" data-shape="square">
+                                    <div class="w-6 h-6 bg-gray-700 dark:bg-gray-300"></div>
+                                </button>
+                                <button class="shape-btn w-12 h-12 border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center rounded-lg" data-shape="rounded">
+                                    <div class="w-6 h-6 bg-gray-700 dark:bg-gray-300 rounded-md"></div>
+                                </button>
+                                <button class="shape-btn w-12 h-12 border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center rounded-lg" data-shape="circle">
+                                    <div class="w-6 h-6 bg-gray-700 dark:bg-gray-300 rounded-full"></div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="qr-color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">QR Code Color</label>
+                                <input type="color" id="qr-color" value="#000000" class="h-10 w-full rounded-lg cursor-pointer">
+                            </div>
+                            <div>
+                                <label for="bg-color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Background Color</label>
+                                <input type="color" id="bg-color" value="#FFFFFF" class="h-10 w-full rounded-lg cursor-pointer">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="logo-upload" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Add Logo (optional)</label>
+                            <input type="file" id="logo-upload" accept="image/*" class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-200 file:text-gray-700 dark:file:bg-gray-700 dark:file:text-gray-200 hover:file:bg-gray-300 dark:hover:file:bg-gray-600">
+                        </div>
+
+                        <div>
+                            <label for="logo-size" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Logo Size</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="logo-size" min="10" max="40" value="25" class="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" disabled>
+                                <span id="logo-size-value" class="text-sm text-gray-600 dark:text-gray-400 w-16">25%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="generate-qr" class="btn-primary w-full">Generate QR Code</button>
+
+                <div id="qr-result" class="mt-6 hidden text-center">
+                    <div id="qr-code-container" class="bg-white inline-block p-4 rounded-lg shadow-md mb-4"></div>
+                    <div class="flex justify-center space-x-4">
+                        <button id="download-qr" class="btn-secondary" disabled>Download</button>
+                        <button id="share-qr" class="btn-secondary" disabled>Share</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="url-tab" class="p-6 hidden">
+                <div class="mb-4">
+                    <label for="long-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Long URL</label>
+                    <input type="url" id="long-url" class="input" placeholder="Enter the URL you want to shorten">
+                </div>
+
+                <div class="mb-6">
+                    <label for="custom-alias" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Custom Alias (optional)</label>
+                    <input type="text" id="custom-alias" class="input" placeholder="Create a custom short link">
+                </div>
+
+                <button id="shorten-url" class="btn-primary w-full">Shorten URL</button>
+
+                <div id="url-result" class="mt-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-2">
+                            <div class="bg-gray-100 dark:bg-gray-800 rounded-xl p-5">
+                                <h3 class="font-medium mb-3">Your shortened URL</h3>
+                                <div class="flex items-center bg-white dark:bg-gray-700 rounded-lg p-3 mb-3">
+                                    <span id="shortened-url" class="flex-1 text-umbrel-blue break-all"></span>
+                                    <button id="copy-url" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">Created: <time id="created-date"></time></span>
+                                    <span class="text-gray-600 dark:text-gray-400">Clicks: <strong id="click-count">0</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="font-medium mb-3">QR Code</h3>
+                            <div id="url-qr-code" class="bg-white inline-block p-2 rounded-lg shadow-md mb-3"></div>
+                            <button id="customize-url-qr" class="btn-secondary w-full">Customize QR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</body>
+</html>
