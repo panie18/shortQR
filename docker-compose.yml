@@ -1,0 +1,19 @@
+services:
+  app:
+    build: ./app
+    restart: unless-stopped
+    ports:
+      - 3125:3000
+    volumes:
+      - ${APP_DATA_DIR}/data:/app/data
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://db:27017/shortqr
+
+  db:
+    image: mongo:4.4
+    restart: unless-stopped
+    volumes:
+      - ${APP_DATA_DIR}/db:/data/db
