@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>shortQR</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body class="bg-gray-900 min-h-screen text-white antialiased">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <header class="flex items-center justify-center mb-8">
+      <img src="logo.png" alt="shortQR Logo" class="h-8 mr-2">
+      <h1 class="text-2xl font-semibold">shortQR</h1>
+    </header>
+
+    <div class="bg-gray-800 rounded-xl overflow-hidden">
+      <!-- Tabs -->
+      <div class="flex border-b border-gray-700">
+        <button id="tab-qr" class="tab-btn active flex-1 py-3 px-4 font-medium">Generate QR Code</button>
+        <button id="tab-url" class="tab-btn flex-1 py-3 px-4 font-medium">Shorten URL</button>
+      </div>
+
+      <!-- QR Generator Section -->
+      <section id="section-qr" class="p-6">
+        <form id="qr-form" class="space-y-6">
+          <div>
+            <label for="qr-content" class="block text-sm font-medium mb-2">Content</label>
+            <input type="text" id="qr-content" class="form-input" placeholder="https://example.com">
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium mb-2">QR Style</label>
+              <div class="flex space-x-4">
+                <button type="button" class="qr-style-btn active" data-style="squares">
+                  <span class="block h-6 w-6 bg-current rounded-sm"></span>
+                </button>
+                <button type="button" class="qr-style-btn" data-style="dots">
+                  <span class="block h-6 w-6 bg-current rounded-full"></span>
+                </button>
+                <button type="button" class="qr-style-btn" data-style="rounded">
+                  <span class="block h-6 w-6 bg-current rounded-lg"></span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label for="qr-color" class="block text-sm font-medium mb-2">Color</label>
+              <div class="flex items-center">
+                <input type="color" id="qr-color" value="#ffffff" class="h-8 w-8 rounded">
+                <span id="color-hex" class="ml-3 text-sm text-gray-300">#ffffff</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Logo (Optional)</label>
+            <div class="flex">
+              <input type="file" id="logo-upload" class="hidden" accept="image/*">
+              <button type="button" id="logo-btn" class="btn-secondary w-full text-left">
+                <span id="logo-name">No file selected</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn-primary px-8">Generate QR Code</button>
+          </div>
+        </form>
+
+        <!-- QR Code Result -->
+        <div id="qr-result" class="mt-8 hidden text-center">
+          <div class="bg-white inline-block p-4 rounded-lg mb-6">
+            <div id="qr-code"></div>
+          </div>
+
+          <div class="flex space-x-4 justify-center">
+            <button id="qr-download" class="btn-primary">Download</button>
+            <button id="qr-new" class="btn-secondary">New QR</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- URL Shortener Section -->
+      <section id="section-url" class="p-6 hidden">
+        <form id="url-form" class="space-y-6">
+          <div>
+            <label for="long-url" class="block text-sm font-medium mb-2">Long URL</label>
+            <input type="url" id="long-url" class="form-input" placeholder="https://example.com/very/long/url">
+          </div>
+
+          <div>
+            <label for="custom-slug" class="block text-sm font-medium mb-2">Custom Slug (Optional)</label>
+            <input type="text" id="custom-slug" class="form-input" placeholder="my-link">
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn-primary px-8">Shorten URL</button>
+          </div>
+        </form>
+
+        <!-- Short URL Result -->
+        <div id="url-result" class="mt-8 hidden">
+          <div class="mb-6">
+            <label class="block text-sm font-medium mb-2">Short URL</label>
+            <div class="flex">
+              <input type="text" id="short-url" class="form-input flex-1" readonly>
+              <button id="url-copy" class="btn-icon ml-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+                  <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-6 bg-gray-700 rounded-lg p-4">
+            <h3 class="text-sm font-medium mb-2">Statistics</h3>
+            <p class="text-sm text-gray-300 mb-1">Created: <span id="url-date">-</span></p>
+            <p class="text-sm text-gray-300">Clicks: <span id="url-clicks">0</span></p>
+          </div>
+
+          <div class="text-center">
+            <button id="url-new" class="btn-secondary">Create New URL</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="mt-8 text-center text-sm text-gray-500">
+      <p>© 2025 shortQR | Built for umbrelOS</p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
