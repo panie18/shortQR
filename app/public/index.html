@@ -1,332 +1,204 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>shortQR</title>
-  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400,300&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/png" href="favicon.png">
+  <script type="module" src="https://unpkg.com/@material/web/all.js"></script>
 </head>
 <body>
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  
   <div class="container">
     <header>
-      <div class="header-content">
-        <div class="logo">
-          <h1>shortQR</h1>
-        </div>
-        <div class="theme-toggle">
-          <button id="theme-toggle-btn" aria-label="Toggle dark mode" class="glass-btn">
-            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="5"></circle>
-              <line x1="12" y1="1" x2="12" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="23"></line>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-              <line x1="1" y1="12" x2="3" y2="12"></line>
-              <line x1="21" y1="12" x2="23" y2="12"></line>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          </button>
-        </div>
+      <div class="app-bar">
+        <h1 class="app-title">shortQR</h1>
+        <md-filled-tonal-icon-button id="theme-toggle" aria-label="Toggle dark mode">
+          <md-icon>dark_mode</md-icon>
+        </md-filled-tonal-icon-button>
       </div>
     </header>
 
-    <div class="glass-card main-card">
-      <div class="card-inner">
-        <div class="app-tabs">
-          <button class="tab active" data-tab="qr">Generate QR Code</button>
-          <button class="tab" data-tab="url">Shorten URL</button>
+    <main class="main-content">
+      <div class="card surface">
+        <div class="tabs-container">
+          <md-tabs id="main-tabs" aria-label="App sections">
+            <md-primary-tab id="qr-tab" aria-controls="qr-panel" active>Generate QR</md-primary-tab>
+            <md-primary-tab id="url-tab" aria-controls="url-panel">Shorten URL</md-primary-tab>
+          </md-tabs>
         </div>
-
-        <!-- QR Generator Section -->
-        <div class="tab-content active" id="qr-section">
-          <form id="qr-form">
-            <div class="form-group">
-              <label for="qr-content">Content</label>
-              <input type="text" id="qr-content" placeholder="https://example.com">
-            </div>
-
-            <div class="qr-customization">
-              <h3>QR Code Stil</h3>
-              <div class="style-grid">
-                <button type="button" class="style-btn active" data-feature="style" data-style="squares">
-                  <img src="assets/styles/style-1.svg" alt="Standard">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="micro">
-                  <img src="assets/styles/style-2.svg" alt="Micro">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="dots">
-                  <img src="assets/styles/style-3.svg" alt="Dots">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="dots-circular">
-                  <img src="assets/styles/style-4.svg" alt="Circular Dots">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="dashes">
-                  <img src="assets/styles/style-5.svg" alt="Dashes">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="bars">
-                  <img src="assets/styles/style-6.svg" alt="Bars">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded">
-                  <img src="assets/styles/style-7.svg" alt="Rounded">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-top">
-                  <img src="assets/styles/style-8.svg" alt="Rounded Top">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-bottom">
-                  <img src="assets/styles/style-9.svg" alt="Rounded Bottom">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-right">
-                  <img src="assets/styles/style-10.svg" alt="Rounded Right">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-left">
-                  <img src="assets/styles/style-11.svg" alt="Rounded Left">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-top-right">
-                  <img src="assets/styles/style-12.svg" alt="Rounded Top Right">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-bottom-right">
-                  <img src="assets/styles/style-13.svg" alt="Rounded Bottom Right">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-bottom-left">
-                  <img src="assets/styles/style-14.svg" alt="Rounded Bottom Left">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-top-left">
-                  <img src="assets/styles/style-15.svg" alt="Rounded Top Left">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="classy">
-                  <img src="assets/styles/style-16.svg" alt="Classy">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="classy-rounded">
-                  <img src="assets/styles/style-17.svg" alt="Classy Rounded">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-in">
-                  <img src="assets/styles/style-18.svg" alt="Rounded In">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="rounded-in-right">
-                  <img src="assets/styles/style-19.svg" alt="Rounded In Right">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="circular-dots-small">
-                  <img src="assets/styles/style-20.svg" alt="Small Circular Dots">
-                </button>
-                <button type="button" class="style-btn" data-feature="style" data-style="dots-tiny">
-                  <img src="assets/styles/style-21.svg" alt="Tiny Dots">
-                </button>
+        
+        <div class="panels">
+          <div id="qr-panel" class="panel active" role="tabpanel" aria-labelledby="qr-tab">
+            <form id="qr-form">
+              <div class="form-field">
+                <md-filled-text-field id="qr-content" label="URL or Content" type="text" required></md-filled-text-field>
               </div>
 
-              <h3>Eckelemente Aussen</h3>
-              <div class="style-grid">
-                <button type="button" class="style-btn active" data-feature="corner-outer" data-style="square">
-                  <img src="assets/corners/outer-1.svg" alt="Square">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="rounded-right">
-                  <img src="assets/corners/outer-2.svg" alt="Rounded Right">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="rounded-left">
-                  <img src="assets/corners/outer-3.svg" alt="Rounded Left">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="rounded-bottom">
-                  <img src="assets/corners/outer-4.svg" alt="Rounded Bottom">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="dots">
-                  <img src="assets/corners/outer-5.svg" alt="Dots">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="circle-right">
-                  <img src="assets/corners/outer-6.svg" alt="Circle Right">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="circle">
-                  <img src="assets/corners/outer-7.svg" alt="Circle">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="dots-big">
-                  <img src="assets/corners/outer-8.svg" alt="Big Dots">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="twisted">
-                  <img src="assets/corners/outer-9.svg" alt="Twisted">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="curved">
-                  <img src="assets/corners/outer-10.svg" alt="Curved">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="square-outline">
-                  <img src="assets/corners/outer-11.svg" alt="Square Outline">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="circle-outline">
-                  <img src="assets/corners/outer-12.svg" alt="Circle Outline">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="square-rounded">
-                  <img src="assets/corners/outer-13.svg" alt="Square Rounded">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="twisted-alt">
-                  <img src="assets/corners/outer-14.svg" alt="Twisted Alt">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-outer" data-style="dots-square">
-                  <img src="assets/corners/outer-15.svg" alt="Dots Square">
-                </button>
-              </div>
-
-              <h3>Eckelement Innen</h3>
-              <div class="style-grid">
-                <button type="button" class="style-btn active" data-feature="corner-inner" data-style="square">
-                  <img src="assets/corners/inner-1.svg" alt="Square">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="rounded">
-                  <img src="assets/corners/inner-2.svg" alt="Rounded">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="rounded-top-right">
-                  <img src="assets/corners/inner-3.svg" alt="Rounded Top Right">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="sharp-edge">
-                  <img src="assets/corners/inner-4.svg" alt="Sharp Edge">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="dots">
-                  <img src="assets/corners/inner-5.svg" alt="Dots">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="hexagon">
-                  <img src="assets/corners/inner-6.svg" alt="Hexagon">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="jagged">
-                  <img src="assets/corners/inner-7.svg" alt="Jagged">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="rough">
-                  <img src="assets/corners/inner-8.svg" alt="Rough">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="flower">
-                  <img src="assets/corners/inner-9.svg" alt="Flower">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="curved">
-                  <img src="assets/corners/inner-10.svg" alt="Curved">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="bars">
-                  <img src="assets/corners/inner-11.svg" alt="Bars">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="double-bars">
-                  <img src="assets/corners/inner-12.svg" alt="Double Bars">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="circle">
-                  <img src="assets/corners/inner-13.svg" alt="Circle">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="rounded-square">
-                  <img src="assets/corners/inner-14.svg" alt="Rounded Square">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="leaf">
-                  <img src="assets/corners/inner-15.svg" alt="Leaf">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="diamond">
-                  <img src="assets/corners/inner-16.svg" alt="Diamond">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="target">
-                  <img src="assets/corners/inner-17.svg" alt="Target">
-                </button>
-                <button type="button" class="style-btn" data-feature="corner-inner" data-style="maze">
-                  <img src="assets/corners/inner-18.svg" alt="Maze">
-                </button>
-              </div>
-            </div>
-
-            <div class="color-section">
-              <div class="form-group">
-                <label for="qr-color">QR Color</label>
-                <div class="color-picker glass-input">
-                  <input type="color" id="qr-color" value="#000000">
-                  <span id="color-value">#000000</span>
+              <div class="form-section">
+                <h2 class="section-title">QR Code Stil</h2>
+                <div class="style-grid">
+                  <md-outlined-button class="style-btn active" data-feature="style" data-style="squares">
+                    <div class="style-preview squares"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="style" data-style="dots">
+                    <div class="style-preview dots"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="style" data-style="rounded">
+                    <div class="style-preview rounded"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="style" data-style="classy">
+                    <div class="style-preview classy"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="style" data-style="bars">
+                    <div class="style-preview bars"></div>
+                  </md-outlined-button>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label for="bg-color">Background</label>
-                <div class="color-picker glass-input">
-                  <input type="color" id="bg-color" value="#FFFFFF">
-                  <span id="bg-color-value">#FFFFFF</span>
+              <div class="form-section">
+                <h2 class="section-title">Eckelemente Aussen</h2>
+                <div class="style-grid">
+                  <md-outlined-button class="style-btn active" data-feature="corner-outer" data-style="square">
+                    <div class="corner-preview corner-outer-square"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="corner-outer" data-style="rounded">
+                    <div class="corner-preview corner-outer-rounded"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="corner-outer" data-style="dots">
+                    <div class="corner-preview corner-outer-dots"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="corner-outer" data-style="circle">
+                    <div class="corner-preview corner-outer-circle"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="corner-outer" data-style="diamond">
+                    <div class="corner-preview corner-outer-diamond"></div>
+                  </md-outlined-button>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label>Logo (Optional)</label>
-                <div class="file-input">
-                  <input type="file" id="logo-upload" accept="image/*">
-                  <button type="button" id="logo-btn" class="glass-btn file-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="17 8 12 3 7 8"></polyline>
-                      <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                    <span id="logo-name">Upload Logo</span>
-                  </button>
+              <div class="form-section">
+                <h2 class="section-title">Eckelement Innen</h2>
+                <div class="style-grid">
+                  <md-outlined-button class="style-btn active" data-feature="corner-inner" data-style="square">
+                    <div class="corner-preview corner-inner-square"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="corner-inner" data-style="circle">
+                    <div class="corner-preview corner-inner-circle"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="corner-inner" data-style="rounded">
+                    <div class="corner-preview corner-inner-rounded"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="corner-inner" data-style="dots">
+                    <div class="corner-preview corner-inner-dots"></div>
+                  </md-outlined-button>
+                  <md-outlined-button class="style-btn" data-feature="corner-inner" data-style="bars">
+                    <div class="corner-preview corner-inner-bars"></div>
+                  </md-outlined-button>
                 </div>
               </div>
-            </div>
 
-            <div class="form-actions">
-              <button type="submit" class="primary-btn glass-btn">Generate QR Code</button>
-            </div>
-          </form>
+              <div class="color-section">
+                <div class="form-field color-field">
+                  <label for="qr-color" class="color-label">QR Color</label>
+                  <div class="color-input">
+                    <input type="color" id="qr-color" value="#1f1f1f">
+                    <span id="color-value" class="color-value">#1f1f1f</span>
+                  </div>
+                </div>
 
-          <div id="qr-result" class="hidden">
-            <div class="qr-preview glass-panel">
-              <div id="qr-code"></div>
-            </div>
-            <div class="result-actions">
-              <button id="qr-download" class="primary-btn glass-btn">Download</button>
-              <button id="qr-new" class="secondary-btn glass-btn">Create New</button>
+                <div class="form-field color-field">
+                  <label for="bg-color" class="color-label">Background</label>
+                  <div class="color-input">
+                    <input type="color" id="bg-color" value="#ffffff">
+                    <span id="bg-color-value" class="color-value">#ffffff</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="logo-upload" class="file-label">Logo (Optional)</label>
+                <input type="file" id="logo-upload" accept="image/*" class="file-input">
+                <md-outlined-button id="logo-btn">
+                  <md-icon slot="icon">upload</md-icon>
+                  <span id="logo-name">Upload Logo</span>
+                </md-outlined-button>
+              </div>
+
+              <div class="form-actions">
+                <md-filled-button id="generate-btn" type="submit">
+                  <md-icon slot="icon">qr_code</md-icon>
+                  Generate QR Code
+                </md-filled-button>
+              </div>
+            </form>
+
+            <div id="qr-result" class="hidden">
+              <div class="qr-preview">
+                <div id="qr-code" class="elevation-1"></div>
+              </div>
+              <div class="result-actions">
+                <md-filled-button id="qr-download">
+                  <md-icon slot="icon">download</md-icon>
+                  Download
+                </md-filled-button>
+                <md-outlined-button id="qr-new">
+                  <md-icon slot="icon">add</md-icon>
+                  New QR Code
+                </md-outlined-button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- URL Shortener Section -->
-        <div class="tab-content" id="url-section">
-          <form id="url-form">
-            <div class="form-group">
-              <label for="long-url">Long URL</label>
-              <input type="url" id="long-url" class="glass-input" placeholder="https://example.com/very/long/url">
-            </div>
-
-            <div class="form-group">
-              <label for="custom-slug">Custom Slug (Optional)</label>
-              <input type="text" id="custom-slug" class="glass-input" placeholder="my-link">
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="primary-btn glass-btn">Shorten URL</button>
-            </div>
-          </form>
-
-          <div id="url-result" class="hidden">
-            <div class="form-group">
-              <label>Short URL</label>
-              <div class="copy-field">
-                <input type="text" id="short-url" class="glass-input" readonly>
-                <button id="url-copy" class="copy-btn glass-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                  </svg>
-                </button>
+          <div id="url-panel" class="panel" role="tabpanel" aria-labelledby="url-tab">
+            <form id="url-form">
+              <div class="form-field">
+                <md-filled-text-field id="long-url" label="Long URL" type="url" required></md-filled-text-field>
               </div>
-            </div>
 
-            <div class="stats-box glass-panel">
-              <h4>Statistics</h4>
-              <p>Created: <span id="url-date">-</span></p>
-              <p>Clicks: <span id="url-clicks">0</span></p>
-            </div>
+              <div class="form-field">
+                <md-filled-text-field id="custom-slug" label="Custom slug (optional)" type="text"></md-filled-text-field>
+                <div class="helper-text">Leave empty for random slug</div>
+              </div>
 
-            <div class="form-actions">
-              <button id="url-new" class="secondary-btn glass-btn">Create New URL</button>
+              <div class="form-actions">
+                <md-filled-button id="shorten-btn" type="submit">
+                  <md-icon slot="icon">link</md-icon>
+                  Shorten URL
+                </md-filled-button>
+              </div>
+            </form>
+
+            <div id="url-result" class="hidden">
+              <div class="form-field">
+                <md-filled-text-field id="short-url" label="Short URL" type="text" readonly></md-filled-text-field>
+                <md-filled-icon-button id="url-copy" class="copy-btn">
+                  <md-icon>content_copy</md-icon>
+                </md-filled-icon-button>
+              </div>
+
+              <div class="stats-card surface">
+                <h3>Statistics</h3>
+                <p>Created: <span id="url-date">-</span></p>
+                <p>Clicks: <span id="url-clicks">0</span></p>
+              </div>
+
+              <div class="form-actions">
+                <md-outlined-button id="url-new">
+                  <md-icon slot="icon">add</md-icon>
+                  Create New URL
+                </md-outlined-button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </main>
 
     <footer>
-      <p>© 2025 shortQR | Built for umbrelOS</p>
+      <p>© 2025 shortQR | Built with Material Design 3</p>
     </footer>
   </div>
 
