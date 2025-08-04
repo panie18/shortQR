@@ -33,21 +33,47 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // State variables
   let qrOptions = {
-    dots: 'squares',
-    eye: 'square',
-    frame: 'square',
+    style: 'squares',
+    'corner-outer': 'square',
+    'corner-inner': 'square',
     color: '#000000',
     background: '#FFFFFF'
   };
   let logoFile = null;
   
+  // Add ripple effect to glass buttons
+  function addRippleEffect() {
+    const glassButtons = document.querySelectorAll('.glass-btn');
+    
+    glassButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        const x = e.clientX - e.target.getBoundingClientRect().left;
+        const y = e.clientY - e.target.getBoundingClientRect().top;
+        
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+  }
+  
   // Theme Toggle
   themeToggleBtn.addEventListener('click', function() {
     document.documentElement.classList.toggle('dark');
     
+    // Animate the switch
+    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', currentTheme);
+    
     // Save theme preference
-    const isDark = document.documentElement.classList.contains('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    localStorage.setItem('theme', currentTheme);
   });
   
   // Load saved theme preference
@@ -63,24 +89,42 @@ document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.classList.add('dark');
       }
     }
+    document.body.setAttribute('data-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
   }
   
-  // Tab switching
+  // Tab switching with animations
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const target = tab.getAttribute('data-tab');
+      const activeContent = document.querySelector('.tab-content.active');
+      const targetContent = document.getElementById(`${target}-section`);
       
-      // Deactivate all tabs
-      tabs.forEach(t => t.classList.remove('active'));
-      tabContents.forEach(content => content.classList.remove('active'));
+      if (activeContent === targetContent) return;
       
-      // Activate current tab
-      tab.classList.add('active');
-      document.getElementById(`${target}-section`).classList.add('active');
+      // Animate out current content
+      activeContent.classList.add('animate-out');
+      
+      setTimeout(() => {
+        // Deactivate all tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => {
+          c.classList.remove('active');
+          c.classList.remove('animate-out');
+        });
+        
+        // Activate current tab
+        tab.classList.add('active');
+        targetContent.classList.add('active');
+        targetContent.classList.add('animate-in');
+        
+        setTimeout(() => {
+          targetContent.classList.remove('animate-in');
+        }, 500);
+      }, 300);
     });
   });
   
-  // Style button selection
+  // Style button selection with animation
   styleBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const feature = btn.getAttribute('data-feature');
@@ -90,8 +134,14 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll(`.style-btn[data-feature="${feature}"]`)
         .forEach(b => b.classList.remove('active'));
       
-      // Activate this button
+      // Activate this button with spring animation
       btn.classList.add('active');
+      
+      // Add a pulse animation
+      btn.style.animation = 'pulse 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      setTimeout(() => {
+        btn.style.animation = '';
+      }, 600);
       
       // Update state
       qrOptions[feature] = style;
@@ -118,19 +168,41 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target.files.length > 0) {
       logoFile = e.target.files[0];
       logoName.textContent = logoFile.name;
+      
+      // Animate the button to show success
+      logoBtn.classList.add('success');
+      setTimeout(() => {
+        logoBtn.classList.remove('success');
+      }, 1000);
     }
   });
   
-  // Generate QR code
+  // Generate QR code with smooth transitions
   qrForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     if (!qrContent.value.trim()) {
-      alert('Please enter content for the QR code');
+      // Shake animation for error
+      qrContent.classList.add('error-shake');
+      setTimeout(() => {
+        qrContent.classList.remove('error-shake');
+      }, 600);
+      
+      qrContent.focus();
       return;
     }
     
     try {
+      // Show loading state
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = `
+        <svg class="loading-spinner" viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle>
+        </svg>
+      `;
+      submitBtn.disabled = true;
+      
       // Clear previous QR code
       qrCode.innerHTML = '';
       
@@ -138,21 +210,21 @@ document.addEventListener('DOMContentLoaded', function() {
       const canvas = document.createElement('canvas');
       qrCode.appendChild(canvas);
       
-      // Set up options
+      // Set up options for QRCode.js
       const options = {
         errorCorrectionLevel: 'H',
         margin: 1,
-        width: 240,
+        width: 280,
         color: {
           dark: qrOptions.color,
           light: qrOptions.background
         }
       };
       
-      // Generate QR code
+      // Generate base QR code
       await QRCode.toCanvas(canvas, qrContent.value, options);
       
-      // Apply custom styling
+      // Apply custom styling based on user selections
       await customizeQRCode(canvas, qrOptions);
       
       // Add logo if provided
@@ -160,24 +232,38 @@ document.addEventListener('DOMContentLoaded', function() {
         await addLogoToQRCode(canvas, logoFile);
       }
       
-      // Show result
-      qrForm.style.display = 'none';
-      qrResult.classList.remove('hidden');
+      // Hide the form and show the result with animation
+      qrForm.classList.add('animate-out');
+      
+      setTimeout(() => {
+        qrForm.style.display = 'none';
+        qrResult.classList.remove('hidden');
+        qrResult.classList.add('animate-in');
+        
+        // Reset form button
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+      }, 300);
       
     } catch (error) {
       console.error('QR code generation error:', error);
       alert('Error generating QR code: ' + error.message);
+      
+      // Reset button state
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.innerHTML = 'Generate QR Code';
+      submitBtn.disabled = false;
     }
   });
   
-  // Download QR code
+  // Download QR code with visual feedback
   qrDownload.addEventListener('click', function() {
     const canvas = qrCode.querySelector('canvas');
     if (!canvas) return;
     
     // Create a new canvas with padding
     const paddedCanvas = document.createElement('canvas');
-    const padding = 20;
+    const padding = 40;
     paddedCanvas.width = canvas.width + (padding * 2);
     paddedCanvas.height = canvas.height + (padding * 2);
     
@@ -194,32 +280,89 @@ document.addEventListener('DOMContentLoaded', function() {
     const link = document.createElement('a');
     link.download = 'shortqr-code.png';
     link.href = paddedCanvas.toDataURL('image/png');
+    
+    // Visual feedback
+    this.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      Downloaded
+    `;
+    
+    setTimeout(() => {
+      this.innerHTML = 'Download';
+    }, 2000);
+    
+    // Trigger download
     link.click();
   });
   
-  // Create new QR code
+  // Create new QR code with smooth transition
   qrNew.addEventListener('click', function() {
-    qrForm.reset();
-    logoName.textContent = 'Upload Logo';
-    logoFile = null;
-    colorValue.textContent = '#000000';
-    bgColorValue.textContent = '#FFFFFF';
-    qrOptions.color = '#000000';
-    qrOptions.background = '#FFFFFF';
-    qrResult.classList.add('hidden');
-    qrForm.style.display = 'block';
+    qrResult.classList.add('animate-out');
+    
+    setTimeout(() => {
+      qrResult.classList.remove('animate-in');
+      qrResult.classList.add('hidden');
+      qrResult.classList.remove('animate-out');
+      
+      qrForm.reset();
+      logoName.textContent = 'Upload Logo';
+      logoFile = null;
+      colorValue.textContent = '#000000';
+      bgColorValue.textContent = '#FFFFFF';
+      qrOptions.color = '#000000';
+      qrOptions.background = '#FFFFFF';
+      
+      // Reset style buttons
+      document.querySelectorAll('.style-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelectorAll('.style-btn[data-feature="style"][data-style="squares"]').forEach(btn => {
+        btn.classList.add('active');
+      });
+      document.querySelectorAll('.style-btn[data-feature="corner-outer"][data-style="square"]').forEach(btn => {
+        btn.classList.add('active');
+      });
+      document.querySelectorAll('.style-btn[data-feature="corner-inner"][data-style="square"]').forEach(btn => {
+        btn.classList.add('active');
+      });
+      
+      qrForm.style.display = 'block';
+      qrForm.classList.add('animate-in');
+      
+      setTimeout(() => {
+        qrForm.classList.remove('animate-in');
+      }, 500);
+    }, 300);
   });
   
-  // URL shortening
+  // URL shortening with loading animation
   urlForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     if (!longUrl.value.trim()) {
-      alert('Please enter a URL to shorten');
+      // Shake animation for error
+      longUrl.classList.add('error-shake');
+      setTimeout(() => {
+        longUrl.classList.remove('error-shake');
+      }, 600);
+      
+      longUrl.focus();
       return;
     }
     
     try {
+      // Show loading state
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = `
+        <svg class="loading-spinner" viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle>
+        </svg>
+      `;
+      submitBtn.disabled = true;
+      
       // Call API to shorten URL
       const response = await fetch('/api/shorten', {
         method: 'POST',
@@ -237,25 +380,39 @@ document.addEventListener('DOMContentLoaded', function() {
       
       const data = await response.json();
       
-      // Display result
+      // Display result with animation
       shortUrl.value = data.shortUrl;
       urlDate.textContent = new Date(data.created).toLocaleString();
       urlClicks.textContent = '0';
       
-      urlForm.style.display = 'none';
-      urlResult.classList.remove('hidden');
+      urlForm.classList.add('animate-out');
+      
+      setTimeout(() => {
+        urlForm.style.display = 'none';
+        urlResult.classList.remove('hidden');
+        urlResult.classList.add('animate-in');
+        
+        // Reset button
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+      }, 300);
       
     } catch (error) {
       alert(error.message || 'Error shortening URL');
+      
+      // Reset button state
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.innerHTML = 'Shorten URL';
+      submitBtn.disabled = false;
     }
   });
   
-  // Copy short URL
+  // Copy short URL with animation
   urlCopy.addEventListener('click', async function() {
     try {
       await navigator.clipboard.writeText(shortUrl.value);
       
-      // Visual feedback
+      // Visual feedback animation
       urlCopy.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="20 6 9 17 4 12"></polyline>
@@ -276,11 +433,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Create new URL
+  // Create new URL with animation
   urlNew.addEventListener('click', function() {
-    urlForm.reset();
-    urlResult.classList.add('hidden');
-    urlForm.style.display = 'block';
+    urlResult.classList.add('animate-out');
+    
+    setTimeout(() => {
+      urlResult.classList.remove('animate-in');
+      urlResult.classList.add('hidden');
+      urlResult.classList.remove('animate-out');
+      
+      urlForm.reset();
+      urlForm.style.display = 'block';
+      urlForm.classList.add('animate-in');
+      
+      setTimeout(() => {
+        urlForm.classList.remove('animate-in');
+      }, 500);
+    }, 300);
   });
   
   // Helper function to add logo to QR code
@@ -298,9 +467,9 @@ document.addEventListener('DOMContentLoaded', function() {
           const x = (canvas.width - size) / 2;
           const y = (canvas.height - size) / 2;
           
-          // Create white background for logo
+          // Create background for logo
           ctx.fillStyle = qrOptions.background;
-          ctx.fillRect(x - 2, y - 2, size + 4, size + 4);
+          ctx.fillRect(x - 5, y - 5, size + 10, size + 10);
           
           // Draw logo
           ctx.drawImage(img, x, y, size, size);
@@ -316,198 +485,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Helper function to customize QR code
+  // Complex function to customize QR code based on user selections
   async function customizeQRCode(canvas, options) {
-    return new Promise((resolve) => {
-      const ctx = canvas.getContext('2d');
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      const moduleSize = canvas.width / 33; // Approximate size of QR modules
-      
-      // If only color needs to be changed and dots are squares, we can return early
-      if (options.dots === 'squares' && options.eye === 'square' && options.frame === 'square') {
-        resolve();
-        return;
-      }
-      
-      // Create a map of module positions
-      let modules = [];
-      for (let y = 0; y < canvas.height; y += moduleSize) {
-        for (let x = 0; x < canvas.width; x += moduleSize) {
-          const centerX = Math.floor(x + moduleSize / 2);
-          const centerY = Math.floor(y + moduleSize / 2);
-          
-          // Check if this is a dark module
-          const index = (centerY * canvas.width + centerX) * 4;
-          if (data[index] === 0 && data[index + 1] === 0 && data[index + 2] === 0) {
-            // Check if this is an eye pattern by position
-            let isEye = false;
-            let isFrame = false;
-            
-            // Top-left eye detection
-            if (x < moduleSize * 7 && y < moduleSize * 7) {
-              if (x < moduleSize * 7 && x > 0 && y < moduleSize * 7 && y > 0) {
-                if (x > moduleSize && x < moduleSize * 6 && y > moduleSize && y < moduleSize * 6) {
-                  isEye = true;
-                } else {
-                  isFrame = true;
-                }
-              }
-            }
-            
-            // Top-right eye detection
-            else if (x > canvas.width - moduleSize * 7 && y < moduleSize * 7) {
-              if (x < canvas.width && y < moduleSize * 7 && y > 0) {
-                if (x > canvas.width - moduleSize * 6 && x < canvas.width - moduleSize && 
-                    y > moduleSize && y < moduleSize * 6) {
-                  isEye = true;
-                } else {
-                  isFrame = true;
-                }
-              }
-            }
-            
-            // Bottom-left eye detection
-            else if (x < moduleSize * 7 && y > canvas.height - moduleSize * 7) {
-              if (x < moduleSize * 7 && x > 0 && y < canvas.height) {
-                if (x > moduleSize && x < moduleSize * 6 && 
-                    y > canvas.height - moduleSize * 6 && y < canvas.height - moduleSize) {
-                  isEye = true;
-                } else {
-                  isFrame = true;
-                }
-              }
-            }
-            
-            modules.push({
-              x: Math.floor(x),
-              y: Math.floor(y),
-              size: Math.ceil(moduleSize),
-              isEye,
-              isFrame
-            });
-          }
-        }
-      }
-      
-      // Clear the canvas
-      ctx.fillStyle = options.background;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw custom modules
-      modules.forEach(module => {
-        ctx.fillStyle = options.color;
-        
-        const x = module.x;
-        const y = module.y;
-        const size = module.size;
-        
-        if (module.isEye) {
-          // Draw eye patterns
-          switch (options.eye) {
-            case 'circle':
-              ctx.beginPath();
-              ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
-              ctx.fill();
-              break;
-              
-            case 'rounded':
-              drawRoundedRect(ctx, x, y, size, size, size/3);
-              break;
-              
-            case 'leaf':
-              ctx.save();
-              ctx.translate(x + size/2, y + size/2);
-              ctx.rotate(Math.PI / 4);
-              ctx.fillRect(-size/2, -size/2, size, size);
-              ctx.restore();
-              break;
-              
-            default:
-              ctx.fillRect(x, y, size, size);
-          }
-        } else if (module.isFrame) {
-          // Draw frame patterns
-          switch (options.frame) {
-            case 'circle':
-              ctx.beginPath();
-              ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
-              ctx.fill();
-              break;
-              
-            case 'rounded':
-              drawRoundedRect(ctx, x, y, size, size, size/3);
-              break;
-              
-            case 'flower':
-              ctx.beginPath();
-              const centerX = x + size/2;
-              const centerY = y + size/2;
-              const radius = size/2;
-              for (let i = 0; i < 6; i++) {
-                const angle = (Math.PI * 2) * (i / 6);
-                const petalX = centerX + Math.cos(angle) * radius;
-                const petalY = centerY + Math.sin(angle) * radius;
-                if (i === 0) {
-                  ctx.moveTo(petalX, petalY);
-                } else {
-                  ctx.lineTo(petalX, petalY);
-                }
-              }
-              ctx.closePath();
-              ctx.fill();
-              break;
-              
-            default:
-              ctx.fillRect(x, y, size, size);
-          }
-        } else {
-          // Draw regular modules
-          switch (options.dots) {
-            case 'dots':
-              ctx.beginPath();
-              ctx.arc(x + size/2, y + size/2, size/2 - 1, 0, Math.PI * 2);
-              ctx.fill();
-              break;
-              
-            case 'rounded':
-              drawRoundedRect(ctx, x, y, size, size, size/3);
-              break;
-              
-            case 'classy':
-              ctx.save();
-              ctx.translate(x + size/2, y + size/2);
-              ctx.rotate(Math.PI / 4);
-              ctx.fillRect(-size/2 + 1, -size/2 + 1, size - 2, size - 2);
-              ctx.restore();
-              break;
-              
-            default:
-              ctx.fillRect(x, y, size, size);
-          }
-        }
-      });
-      
-      resolve();
-    });
-  }
-  
-  // Helper function to draw rounded rectangles
-  function drawRoundedRect(ctx, x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-    ctx.fill();
-  }
-  
-  // Initialize
-  loadTheme();
-});
+    return new Promise((resolve)
