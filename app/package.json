@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "QR Code Generator and URL Shortener",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "build": "mkdir -p public && cp src/css/styles.css public/"
+ "scripts": {
+  "start": "node server.js",
+  "dev": "nodemon server.js",
+  "build": "echo 'CSS already in public directory'"
   },
   "dependencies": {
     "cors": "^2.8.5",
