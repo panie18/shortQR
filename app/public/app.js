@@ -1,26 +1,24 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // DOM Elements - UI Controls
-  const themeToggleBtn = document.getElementById('theme-toggle-btn');
-  const tabs = document.querySelectorAll('.tab');
-  const tabContents = document.querySelectorAll('.tab-content');
-  const styleBtns = document.querySelectorAll('.style-btn');
+  const themeToggle = document.getElementById('theme-toggle');
+  const qrTab = document.getElementById('qr-tab');
+  const urlTab = document.getElementById('url-tab');
+  const qrPanel = document.getElementById('qr-panel');
+  const urlPanel = document.getElementById('url-panel');
   
-  // DOM Elements - QR Generator
   const qrForm = document.getElementById('qr-form');
   const qrContent = document.getElementById('qr-content');
-  const qrColor = document.getElementById('qr-color');
-  const bgColor = document.getElementById('bg-color');
+  const qrColorInput = document.getElementById('qr-color');
+  const bgColorInput = document.getElementById('bg-color');
   const colorValue = document.getElementById('color-value');
   const bgColorValue = document.getElementById('bg-color-value');
   const logoUpload = document.getElementById('logo-upload');
   const logoBtn = document.getElementById('logo-btn');
   const logoName = document.getElementById('logo-name');
   const qrResult = document.getElementById('qr-result');
-  const qrCode = document.getElementById('qr-code');
+  const qrCodeContainer = document.getElementById('qr-code');
   const qrDownload = document.getElementById('qr-download');
   const qrNew = document.getElementById('qr-new');
   
-  // DOM Elements - URL Shortener
   const urlForm = document.getElementById('url-form');
   const longUrl = document.getElementById('long-url');
   const customSlug = document.getElementById('custom-slug');
@@ -31,428 +29,310 @@ document.addEventListener('DOMContentLoaded', function() {
   const urlClicks = document.getElementById('url-clicks');
   const urlNew = document.getElementById('url-new');
   
-  // State variables
+  const styleBtns = document.querySelectorAll('.style-btn');
+  
   let qrOptions = {
     style: 'squares',
     'corner-outer': 'square',
     'corner-inner': 'square',
-    color: '#000000',
-    background: '#FFFFFF'
+    color: '#1f1f1f',
+    background: '#ffffff'
   };
+  
   let logoFile = null;
   
-  // Add ripple effect to glass buttons
-  function addRippleEffect() {
-    const glassButtons = document.querySelectorAll('.glass-btn');
+  function initializeTabs() {
+    document.querySelector('md-tabs').addEventListener('change', (event) => {
+      if (event.target.activeTabIndex === 0) {
+        qrPanel.classList.add('active');
+        urlPanel.classList.remove('active');
+      } else {
+        qrPanel.classList.remove('active');
+        urlPanel.classList.add('active');
+      }
+    });
+  }
+  
+  function initializeThemeToggle() {
+    const savedTheme = localStorage.getItem('theme');
     
-    glassButtons.forEach(button => {
-      button.addEventListener('click', function(e) {
-        const x = e.clientX - e.target.getBoundingClientRect().left;
-        const y = e.clientY - e.target.getBoundingClientRect().top;
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+      document.documentElement.classList.remove('light-mode');
+      themeToggle.querySelector('md-icon').textContent = 'light_mode';
+    } else if (savedTheme === 'light') {
+      document.documentElement.classList.add('light-mode');
+      document.documentElement.classList.remove('dark-mode');
+      themeToggle.querySelector('md-icon').textContent = 'dark_mode';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (document.documentElement.classList.contains('dark-mode')) {
+        document.documentElement.classList.remove('dark-mode');
+        document.documentElement.classList.add('light-mode');
+        localStorage.setItem('theme', 'light');
+        themeToggle.querySelector('md-icon').textContent = 'dark_mode';
+      } else {
+        document.documentElement.classList.remove('light-mode');
+        document.documentElement.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+        themeToggle.querySelector('md-icon').textContent = 'light_mode';
+      }
+    });
+  }
+  
+  function initializeStyleButtons() {
+    styleBtns.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const feature = this.getAttribute('data-feature');
+        const style = this.getAttribute('data-style');
         
-        const ripple = document.createElement('span');
-        ripple.classList.add('ripple');
-        ripple.style.left = `${x}px`;
-        ripple.style.top = `${y}px`;
+        document.querySelectorAll(`.style-btn[data-feature="${feature}"]`)
+          .forEach(b => b.classList.remove('active'));
         
-        this.appendChild(ripple);
-        
-        setTimeout(() => {
-          ripple.remove();
-        }, 600);
+        this.classList.add('active');
+        qrOptions[feature] = style;
       });
     });
   }
   
-  // Theme Toggle
-  themeToggleBtn.addEventListener('click', function() {
-    document.documentElement.classList.toggle('dark');
+  function initializeColorPickers() {
+    qrColorInput.addEventListener('input', function() {
+      colorValue.textContent = this.value;
+      qrOptions.color = this.value;
+    });
     
-    // Animate the switch
-    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    document.body.setAttribute('data-theme', currentTheme);
-    
-    // Save theme preference
-    localStorage.setItem('theme', currentTheme);
-  });
-  
-  // Load saved theme preference
-  function loadTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else if (savedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      // Check for system preference
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.classList.add('dark');
-      }
-    }
-    document.body.setAttribute('data-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    bgColorInput.addEventListener('input', function() {
+      bgColorValue.textContent = this.value;
+      qrOptions.background = this.value;
+    });
   }
   
-  // Tab switching with animations
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const target = tab.getAttribute('data-tab');
-      const activeContent = document.querySelector('.tab-content.active');
-      const targetContent = document.getElementById(`${target}-section`);
-      
-      if (activeContent === targetContent) return;
-      
-      // Animate out current content
-      activeContent.classList.add('animate-out');
-      
-      setTimeout(() => {
-        // Deactivate all tabs
-        tabs.forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => {
-          c.classList.remove('active');
-          c.classList.remove('animate-out');
-        });
-        
-        // Activate current tab
-        tab.classList.add('active');
-        targetContent.classList.add('active');
-        targetContent.classList.add('animate-in');
-        
-        setTimeout(() => {
-          targetContent.classList.remove('animate-in');
-        }, 500);
-      }, 300);
+  function initializeLogoUpload() {
+    logoBtn.addEventListener('click', function() {
+      logoUpload.click();
     });
-  });
-  
-  // Style button selection with animation
-  styleBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const feature = btn.getAttribute('data-feature');
-      const style = btn.getAttribute('data-style');
-      
-      // Deactivate other buttons in the same feature group
-      document.querySelectorAll(`.style-btn[data-feature="${feature}"]`)
-        .forEach(b => b.classList.remove('active'));
-      
-      // Activate this button with spring animation
-      btn.classList.add('active');
-      
-      // Add a pulse animation
-      btn.style.animation = 'pulse 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-      setTimeout(() => {
-        btn.style.animation = '';
-      }, 600);
-      
-      // Update state
-      qrOptions[feature] = style;
+    
+    logoUpload.addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        logoFile = e.target.files[0];
+        logoName.textContent = logoFile.name;
+      }
     });
-  });
+  }
   
-  // Color inputs
-  qrColor.addEventListener('input', function() {
-    colorValue.textContent = this.value;
-    qrOptions.color = this.value;
-  });
-  
-  bgColor.addEventListener('input', function() {
-    bgColorValue.textContent = this.value;
-    qrOptions.background = this.value;
-  });
-  
-  // Logo upload
-  logoBtn.addEventListener('click', function() {
-    logoUpload.click();
-  });
-  
-  logoUpload.addEventListener('change', function(e) {
-    if (e.target.files.length > 0) {
-      logoFile = e.target.files[0];
-      logoName.textContent = logoFile.name;
+  function initializeQRForm() {
+    qrForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
       
-      // Animate the button to show success
-      logoBtn.classList.add('success');
-      setTimeout(() => {
-        logoBtn.classList.remove('success');
-      }, 1000);
-    }
-  });
-  
-  // Generate QR code with smooth transitions
-  qrForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    if (!qrContent.value.trim()) {
-      // Shake animation for error
-      qrContent.classList.add('error-shake');
-      setTimeout(() => {
-        qrContent.classList.remove('error-shake');
-      }, 600);
-      
-      qrContent.focus();
-      return;
-    }
-    
-    try {
-      // Show loading state
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalBtnText = submitBtn.innerHTML;
-      submitBtn.innerHTML = `
-        <svg class="loading-spinner" viewBox="0 0 50 50">
-          <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle>
-        </svg>
-      `;
-      submitBtn.disabled = true;
-      
-      // Clear previous QR code
-      qrCode.innerHTML = '';
-      
-      // Create a canvas element explicitly
-      const canvas = document.createElement('canvas');
-      qrCode.appendChild(canvas);
-      
-      // Set up options for QRCode.js
-      const options = {
-        errorCorrectionLevel: 'H',
-        margin: 1,
-        width: 280,
-        color: {
-          dark: qrOptions.color,
-          light: qrOptions.background
-        }
-      };
-      
-      // Generate base QR code
-      await QRCode.toCanvas(canvas, qrContent.value, options);
-      
-      // Apply custom styling based on user selections
-      await customizeQRCode(canvas, qrOptions);
-      
-      // Add logo if provided
-      if (logoFile) {
-        await addLogoToQRCode(canvas, logoFile);
+      const content = qrContent.value;
+      if (!content) {
+        return;
       }
       
-      // Hide the form and show the result with animation
-      qrForm.classList.add('animate-out');
-      
-      setTimeout(() => {
+      try {
+        qrCodeContainer.innerHTML = '';
+        
+        const canvas = document.createElement('canvas');
+        qrCodeContainer.appendChild(canvas);
+        
+        const options = {
+          errorCorrectionLevel: 'H',
+          margin: 1,
+          width: 280,
+          color: {
+            dark: qrOptions.color,
+            light: qrOptions.background
+          }
+        };
+        
+        await QRCode.toCanvas(canvas, content, options);
+        
+        await customizeQRCode(canvas, qrOptions);
+        
+        if (logoFile) {
+          await addLogoToQRCode(canvas, logoFile);
+        }
+        
         qrForm.style.display = 'none';
         qrResult.classList.remove('hidden');
-        qrResult.classList.add('animate-in');
         
-        // Reset form button
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
-      }, 300);
-      
-    } catch (error) {
-      console.error('QR code generation error:', error);
-      alert('Error generating QR code: ' + error.message);
-      
-      // Reset button state
-      const submitBtn = this.querySelector('button[type="submit"]');
-      submitBtn.innerHTML = 'Generate QR Code';
-      submitBtn.disabled = false;
-    }
-  });
+      } catch (error) {
+        console.error('QR code generation error:', error);
+        alert('Error generating QR code: ' + error.message);
+      }
+    });
+  }
   
-  // Download QR code with visual feedback
-  qrDownload.addEventListener('click', function() {
-    const canvas = qrCode.querySelector('canvas');
-    if (!canvas) return;
-    
-    // Create a new canvas with padding
-    const paddedCanvas = document.createElement('canvas');
-    const padding = 40;
-    paddedCanvas.width = canvas.width + (padding * 2);
-    paddedCanvas.height = canvas.height + (padding * 2);
-    
-    const ctx = paddedCanvas.getContext('2d');
-    
-    // Fill background
-    ctx.fillStyle = qrOptions.background;
-    ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
-    
-    // Draw the QR code
-    ctx.drawImage(canvas, padding, padding);
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.download = 'shortqr-code.png';
-    link.href = paddedCanvas.toDataURL('image/png');
-    
-    // Visual feedback
-    this.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
-      Downloaded
-    `;
-    
-    setTimeout(() => {
-      this.innerHTML = 'Download';
-    }, 2000);
-    
-    // Trigger download
-    link.click();
-  });
-  
-  // Create new QR code with smooth transition
-  qrNew.addEventListener('click', function() {
-    qrResult.classList.add('animate-out');
-    
-    setTimeout(() => {
-      qrResult.classList.remove('animate-in');
-      qrResult.classList.add('hidden');
-      qrResult.classList.remove('animate-out');
+  async function customizeQRCode(canvas, options) {
+    return new Promise((resolve) => {
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      const moduleSize = canvas.width / 33;
       
-      qrForm.reset();
-      logoName.textContent = 'Upload Logo';
-      logoFile = null;
-      colorValue.textContent = '#000000';
-      bgColorValue.textContent = '#FFFFFF';
-      qrOptions.color = '#000000';
-      qrOptions.background = '#FFFFFF';
-      
-      // Reset style buttons
-      document.querySelectorAll('.style-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelectorAll('.style-btn[data-feature="style"][data-style="squares"]').forEach(btn => {
-        btn.classList.add('active');
-      });
-      document.querySelectorAll('.style-btn[data-feature="corner-outer"][data-style="square"]').forEach(btn => {
-        btn.classList.add('active');
-      });
-      document.querySelectorAll('.style-btn[data-feature="corner-inner"][data-style="square"]').forEach(btn => {
-        btn.classList.add('active');
-      });
-      
-      qrForm.style.display = 'block';
-      qrForm.classList.add('animate-in');
-      
-      setTimeout(() => {
-        qrForm.classList.remove('animate-in');
-      }, 500);
-    }, 300);
-  });
-  
-  // URL shortening with loading animation
-  urlForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    if (!longUrl.value.trim()) {
-      // Shake animation for error
-      longUrl.classList.add('error-shake');
-      setTimeout(() => {
-        longUrl.classList.remove('error-shake');
-      }, 600);
-      
-      longUrl.focus();
-      return;
-    }
-    
-    try {
-      // Show loading state
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalBtnText = submitBtn.innerHTML;
-      submitBtn.innerHTML = `
-        <svg class="loading-spinner" viewBox="0 0 50 50">
-          <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle>
-        </svg>
-      `;
-      submitBtn.disabled = true;
-      
-      // Call API to shorten URL
-      const response = await fetch('/api/shorten', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: longUrl.value,
-          slug: customSlug.value || undefined
-        })
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to create short URL');
+      if (options.style === 'squares' && options['corner-outer'] === 'square' && options['corner-inner'] === 'square') {
+        resolve();
+        return;
       }
       
-      const data = await response.json();
+      let modules = [];
+      for (let y = 0; y < canvas.height; y += moduleSize) {
+        for (let x = 0; x < canvas.width; x += moduleSize) {
+          const centerX = Math.floor(x + moduleSize / 2);
+          const centerY = Math.floor(y + moduleSize / 2);
+          
+          const index = (centerY * canvas.width + centerX) * 4;
+          
+          if (data[index] === 0 && data[index + 1] === 0 && data[index + 2] === 0) {
+            let isEye = false;
+            let isEyeCenter = false;
+            
+            if (x < moduleSize * 7 && y < moduleSize * 7) {
+              if (x < moduleSize * 7 && x > 0 && y < moduleSize * 7 && y > 0) {
+                if (x > moduleSize && x < moduleSize * 6 && y > moduleSize && y < moduleSize * 6) {
+                  if (x > moduleSize * 2 && x < moduleSize * 5 && y > moduleSize * 2 && y < moduleSize * 5) {
+                    isEyeCenter = true;
+                  } else {
+                    isEye = true;
+                  }
+                }
+              }
+            } else if (x > canvas.width - moduleSize * 7 && y < moduleSize * 7) {
+              if (x < canvas.width && y < moduleSize * 7 && y > 0) {
+                if (x > canvas.width - moduleSize * 6 && x < canvas.width - moduleSize && 
+                    y > moduleSize && y < moduleSize * 6) {
+                  if (x > canvas.width - moduleSize * 5 && x < canvas.width - moduleSize * 2 &&
+                      y > moduleSize * 2 && y < moduleSize * 5) {
+                    isEyeCenter = true;
+                  } else {
+                    isEye = true;
+                  }
+                }
+              }
+            } else if (x < moduleSize * 7 && y > canvas.height - moduleSize * 7) {
+              if (x < moduleSize * 7 && x > 0 && y < canvas.height) {
+                if (x > moduleSize && x < moduleSize * 6 && 
+                    y > canvas.height - moduleSize * 6 && y < canvas.height - moduleSize) {
+                  if (x > moduleSize * 2 && x < moduleSize * 5 && 
+                      y > canvas.height - moduleSize * 5 && y < canvas.height - moduleSize * 2) {
+                    isEyeCenter = true;
+                  } else {
+                    isEye = true;
+                  }
+                }
+              }
+            }
+            
+            modules.push({
+              x: Math.floor(x),
+              y: Math.floor(y),
+              size: Math.ceil(moduleSize),
+              isEye,
+              isEyeCenter
+            });
+          }
+        }
+      }
       
-      // Display result with animation
-      shortUrl.value = data.shortUrl;
-      urlDate.textContent = new Date(data.created).toLocaleString();
-      urlClicks.textContent = '0';
+      ctx.fillStyle = options.background;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      urlForm.classList.add('animate-out');
-      
-      setTimeout(() => {
-        urlForm.style.display = 'none';
-        urlResult.classList.remove('hidden');
-        urlResult.classList.add('animate-in');
+      modules.forEach(module => {
+        ctx.fillStyle = options.color;
         
-        // Reset button
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
-      }, 300);
+        const x = module.x;
+        const y = module.y;
+        const size = module.size;
+        
+        if (module.isEyeCenter) {
+          switch (options['corner-inner']) {
+            case 'circle':
+              ctx.beginPath();
+              ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+            case 'rounded':
+              drawRoundedRect(ctx, x, y, size, size, size/3);
+              break;
+            case 'dots':
+              const dotSize = size / 3;
+              for (let dx = 0; dx < 2; dx++) {
+                for (let dy = 0; dy < 2; dy++) {
+                  ctx.beginPath();
+                  ctx.arc(x + (dx + 0.5) * dotSize, y + (dy + 0.5) * dotSize, dotSize/2, 0, Math.PI * 2);
+                  ctx.fill();
+                }
+              }
+              break;
+            case 'bars':
+              for (let i = 0; i < 2; i++) {
+                ctx.fillRect(x + i * (size/3) + (size/8), y, size/4, size);
+              }
+              break;
+            default:
+              ctx.fillRect(x, y, size, size);
+          }
+        } else if (module.isEye) {
+          switch (options['corner-outer']) {
+            case 'rounded':
+              drawRoundedRect(ctx, x, y, size, size, size/3);
+              break;
+            case 'circle':
+              ctx.beginPath();
+              ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+            case 'dots':
+              ctx.beginPath();
+              ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+            case 'diamond':
+              ctx.beginPath();
+              ctx.moveTo(x + size/2, y);
+              ctx.lineTo(x + size, y + size/2);
+              ctx.lineTo(x + size/2, y + size);
+              ctx.lineTo(x, y + size/2);
+              ctx.closePath();
+              ctx.fill();
+              break;
+            default:
+              ctx.fillRect(x, y, size, size);
+          }
+        } else {
+          switch (options.style) {
+            case 'dots':
+              ctx.beginPath();
+              ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+            case 'rounded':
+              drawRoundedRect(ctx, x, y, size, size, size/3);
+              break;
+            case 'classy':
+              ctx.beginPath();
+              ctx.moveTo(x + size/2, y);
+              ctx.lineTo(x + size, y + size/2);
+              ctx.lineTo(x + size/2, y + size);
+              ctx.lineTo(x, y + size/2);
+              ctx.closePath();
+              ctx.fill();
+              break;
+            case 'bars':
+              ctx.fillRect(x, y, size/3, size);
+              break;
+            default:
+              ctx.fillRect(x, y, size, size);
+          }
+        }
+      });
       
-    } catch (error) {
-      alert(error.message || 'Error shortening URL');
-      
-      // Reset button state
-      const submitBtn = this.querySelector('button[type="submit"]');
-      submitBtn.innerHTML = 'Shorten URL';
-      submitBtn.disabled = false;
-    }
-  });
+      resolve();
+    });
+  }
   
-  // Copy short URL with animation
-  urlCopy.addEventListener('click', async function() {
-    try {
-      await navigator.clipboard.writeText(shortUrl.value);
-      
-      // Visual feedback animation
-      urlCopy.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      `;
-      
-      setTimeout(() => {
-        urlCopy.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-        `;
-      }, 2000);
-      
-    } catch (error) {
-      alert('Failed to copy to clipboard');
-    }
-  });
-  
-  // Create new URL with animation
-  urlNew.addEventListener('click', function() {
-    urlResult.classList.add('animate-out');
-    
-    setTimeout(() => {
-      urlResult.classList.remove('animate-in');
-      urlResult.classList.add('hidden');
-      urlResult.classList.remove('animate-out');
-      
-      urlForm.reset();
-      urlForm.style.display = 'block';
-      urlForm.classList.add('animate-in');
-      
-      setTimeout(() => {
-        urlForm.classList.remove('animate-in');
-      }, 500);
-    }, 300);
-  });
-  
-  // Helper function to add logo to QR code
   async function addLogoToQRCode(canvas, logoFile) {
     return new Promise((resolve, reject) => {
       const ctx = canvas.getContext('2d');
@@ -462,16 +342,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const img = new Image();
         
         img.onload = function() {
-          // Calculate size and position for logo
           const size = canvas.width / 4;
           const x = (canvas.width - size) / 2;
           const y = (canvas.height - size) / 2;
           
-          // Create background for logo
           ctx.fillStyle = qrOptions.background;
           ctx.fillRect(x - 5, y - 5, size + 10, size + 10);
           
-          // Draw logo
           ctx.drawImage(img, x, y, size, size);
           resolve();
         };
@@ -485,6 +362,118 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Complex function to customize QR code based on user selections
-  async function customizeQRCode(canvas, options) {
-    return new Promise((resolve)
+  function drawRoundedRect(ctx, x, y, width, height, radius) {
+    if (width < 2 * radius) radius = width / 2;
+    if (height < 2 * radius) radius = height / 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.arcTo(x, y + height, x, y, radius);
+    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.closePath();
+    ctx.fill();
+  }
+  
+  function initializeQRActions() {
+    qrDownload.addEventListener('click', function() {
+      const canvas = qrCodeContainer.querySelector('canvas');
+      if (!canvas) return;
+      
+      const paddedCanvas = document.createElement('canvas');
+      const padding = 40;
+      paddedCanvas.width = canvas.width + (padding * 2);
+      paddedCanvas.height = canvas.height + (padding * 2);
+      
+      const ctx = paddedCanvas.getContext('2d');
+      
+      ctx.fillStyle = qrOptions.background;
+      ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
+      
+      ctx.drawImage(canvas, padding, padding);
+      
+      const link = document.createElement('a');
+      link.download = 'shortqr-code.png';
+      link.href = paddedCanvas.toDataURL('image/png');
+      link.click();
+    });
+    
+    qrNew.addEventListener('click', function() {
+      qrResult.classList.add('hidden');
+      qrForm.style.display = 'block';
+      qrContent.value = '';
+      logoFile = null;
+      logoName.textContent = 'Upload Logo';
+    });
+  }
+  
+  function initializeURLShortener() {
+    urlForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const url = longUrl.value;
+      if (!url) return;
+      
+      try {
+        const response = await fetch('/api/shorten', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url,
+            slug: customSlug.value || undefined
+          })
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to create short URL');
+        }
+        
+        const data = await response.json();
+        
+        shortUrl.value = data.shortUrl;
+        urlDate.textContent = new Date(data.created).toLocaleString();
+        urlClicks.textContent = '0';
+        
+        urlForm.style.display = 'none';
+        urlResult.classList.remove('hidden');
+        
+      } catch (error) {
+        alert(error.message || 'Error shortening URL');
+      }
+    });
+    
+    urlCopy.addEventListener('click', async function() {
+      try {
+        await navigator.clipboard.writeText(shortUrl.value);
+        
+        const originalIcon = urlCopy.querySelector('md-icon').textContent;
+        urlCopy.querySelector('md-icon').textContent = 'check';
+        
+        setTimeout(() => {
+          urlCopy.querySelector('md-icon').textContent = originalIcon;
+        }, 2000);
+        
+      } catch (error) {
+        alert('Failed to copy to clipboard');
+      }
+    });
+    
+    urlNew.addEventListener('click', function() {
+      urlResult.classList.add('hidden');
+      urlForm.style.display = 'block';
+      longUrl.value = '';
+      customSlug.value = '';
+    });
+  }
+  
+  initializeThemeToggle();
+  initializeTabs();
+  initializeStyleButtons();
+  initializeColorPickers();
+  initializeLogoUpload();
+  initializeQRForm();
+  initializeQRActions();
+  initializeURLShortener();
+});
